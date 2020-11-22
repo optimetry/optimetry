@@ -1,4 +1,4 @@
-Optimetry
+optimetry
 =========
 
 [ɒpˈtɪm ɪ tri] the practice of examining optimization algorithms, by means of suitable instruments or appliances

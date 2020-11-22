@@ -35,7 +35,7 @@ M_graft_D.step()
 
 Cite
 ----
-[Learning rate grafting](https://arxiv.org/abs/2002.11803)
+[Why?](https://arxiv.org/abs/2002.11803)
 ```
 @article{agarwal2020disentangling,
   title={Disentangling Adaptive Gradient Methods from Learning Rates},
@@ -48,3 +48,7 @@ Cite
 Requirements
 ------------
 - torch >= 1.7.0
+
+See also
+--------
+- [TF 1.x code](https://tensorflow.github.io/lingvo/_modules/lingvo/core/adagraft.html#AdaGraftOptimizer) lives within Lingvo.

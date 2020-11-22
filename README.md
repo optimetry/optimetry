@@ -11,7 +11,7 @@ cd optimetry
 pip install -e .
 ```
 
-Or, you know, just pluck from source. [https://github.com/optimetry/optimetry/blob/main/optimetry/adagraft.py].
+Or, you know, just [pluck from source](https://raw.githubusercontent.com/optimetry/optimetry/main/optimetry/adagraft.py).
 
 Usage
 -----
@@ -35,6 +35,7 @@ M_graft_D.step()
 
 Cite
 ----
+[Learning rate grafting](https://arxiv.org/abs/2002.11803)
 ```
 @article{agarwal2020disentangling,
   title={Disentangling Adaptive Gradient Methods from Learning Rates},

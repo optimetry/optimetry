@@ -47,6 +47,7 @@ Cite
 
 Requirements
 ------------
+- Python >= 3.6
 - torch >= 1.7.0
 
 See also

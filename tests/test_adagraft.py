@@ -1,4 +1,4 @@
-'''Unit tests for AdaGraft.'''
+"""Unit tests for AdaGraft."""
 
 import copy
 import unittest
@@ -7,10 +7,10 @@ import torch
 import optimetry
 
 class TestAdaGraft(unittest.TestCase):
-    '''AdaGraft unit tests.'''
+    """AdaGraft unit tests."""
 
     def test_1d(self):
-        '''Scalar test: gradient descent on f(x) = x**2.'''
+        """Scalar test: gradient descent on f(x) = x**2."""
 
         x = 10.
         x_torch = torch.tensor(x, requires_grad=True)
@@ -32,7 +32,7 @@ class TestAdaGraft(unittest.TestCase):
             self.assertAlmostEqual(x_torch.item(), x, places=4)
 
     def test_nn(self):  # pylint: disable-msg=too-many-locals
-        '''Small neural net test.'''
+        """Small neural net test."""
 
         torch.manual_seed(0)
         net = torch.nn.Sequential(torch.nn.Linear(2, 100),
@@ -66,8 +66,7 @@ class TestAdaGraft(unittest.TestCase):
 
             # check that trajectories match
             for p, p_copy in zip(net.parameters(), net_copy.parameters()):
-                max_err = (p - p_copy).abs().max().item()
-                self.assertLessEqual(max_err, 1e-6)
+                self.assertTrue(torch.allclose(p, p_copy, atol=1e-6))
 
 if __name__ == '__main__':
     unittest.main()

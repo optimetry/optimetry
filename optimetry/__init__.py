@@ -1,4 +1,4 @@
-'''Utilities for optimizer research.
-'''
+"""Utilities for optimizer research.
+"""
 
 from .adagraft import AdaGraft

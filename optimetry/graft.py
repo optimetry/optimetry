@@ -1,14 +1,15 @@
-"""AdaGraft meta-optimizer implementation.
+"""Graft meta-optimizer implementation.
 """
 
 import math
 import torch
 
-class AdaGraft(torch.optim.Optimizer):
-    """AdaGraft meta-optimizer for disentanglement of optimizers and
+class Graft(torch.optim.Optimizer):
+    """Grafted meta-optimizer for disentanglement of optimizers and
     implicit step size schedules. Takes black-box optimizers M and D,
     and grafts the norm of M's update with the normalized step
     direction of D's update, with in-place operations.
+    Also known as AdaGraft.
 
     Paper: Naman Agarwal, Rohan Anil, Elad Hazan, Tomer Koren,
            Cyril Zhang. Disentangling Adaptive Gradient Methods from
@@ -41,7 +42,7 @@ class AdaGraft(torch.optim.Optimizer):
 
         defaults = dict(lr=lr, eps=eps)
 
-        super(AdaGraft, self).__init__(params, defaults)
+        super(Graft, self).__init__(params, defaults)
 
     @torch.no_grad()
     def step(self, closure=None):

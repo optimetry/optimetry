@@ -1,4 +1,4 @@
-"""Unit tests for AdaGraft."""
+"""Unit tests for optimizer grafting."""
 
 import copy
 import unittest
@@ -6,8 +6,8 @@ import unittest
 import torch
 import optimetry
 
-class TestAdaGraft(unittest.TestCase):
-    """AdaGraft unit tests."""
+class TestGraft(unittest.TestCase):
+    """Grafting unit tests."""
 
     def test_1d(self):
         """Scalar test: gradient descent on f(x) = x**2."""
@@ -18,7 +18,7 @@ class TestAdaGraft(unittest.TestCase):
 
         M = torch.optim.SGD([x_torch], lr=lr)
         D = torch.optim.SGD([x_torch], lr=123*lr)
-        optimizer = optimetry.AdaGraft([x_torch], M, D)
+        optimizer = optimetry.Graft([x_torch], M, D)
 
         for _ in range(10):
             loss = x_torch**2
@@ -49,7 +49,7 @@ class TestAdaGraft(unittest.TestCase):
 
         M = torch.optim.Adam(net.parameters(), lr=lr)
         D = torch.optim.Adam(net.parameters(), lr=123*lr)
-        optimizer = optimetry.AdaGraft(net.parameters(), M, D)
+        optimizer = optimetry.Graft(net.parameters(), M, D)
 
         M_copy = torch.optim.Adam(net_copy.parameters(), lr=lr)
 

@@ -33,10 +33,11 @@ class GGT(torch.optim.Optimizer):
 
     # pylint: disable-msg=too-many-arguments
     def __init__(self, params, lr=1e-3, window_size=100, betas=(0.9, 1.), eps=1e-4,
-                 weight_decay=0, adam_scale=False):
+                 weight_decay=0, adam_scale=False, decouple_weight_decay=False):
 
         defaults = dict(lr=lr, window_size=window_size, betas=betas, eps=eps,
-                        weight_decay=weight_decay, adam_scale=adam_scale)
+                        weight_decay=weight_decay, adam_scale=adam_scale,
+                        decouple_weight_decay=decouple_weight_decay)
 
         super(GGT, self).__init__(params, defaults)
 
@@ -70,9 +71,17 @@ class GGT(torch.optim.Optimizer):
                 beta1, beta2 = group['betas']
                 adam_scale = group['adam_scale']
                 t, w = state['step'], group['window_size']
+                weight_decay = group['weight_decay']
+                lr = group['lr']
 
                 Gt, GtG = state['Gt'], state['GtG']
                 m1 = state['m1']
+
+                if weight_decay != 0:
+                    if group['decouple_weight_decay']:
+                        p.mul_(1 - lr*weight_decay)
+                    else:
+                        p.grad.add_(p, alpha=weight_decay)
 
                 m1 *= beta1
                 if adam_scale:
@@ -99,8 +108,8 @@ class GGT(torch.optim.Optimizer):
                 # update by GGT-trick-preconditioned step
                 precond_grad = Gt.t() @ (V @ (precond_eigs[:, None] * V.t() @ (Gt @ m1)))
                 p.sub_(precond_grad,
-                       alpha=group['lr'] * math.sqrt(1 - beta2**(t+1)) / (1 - beta1**(t+1))
-                       if adam_scale else group['lr'])
+                       alpha=lr * math.sqrt(1 - beta2**(t+1)) / (1 - beta1**(t+1))
+                       if adam_scale else lr)
 
                 state['step'] += 1
 

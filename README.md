@@ -11,7 +11,7 @@ cd optimetry
 pip install -e .
 ```
 
-Or, you know, just [pluck from source](https://raw.githubusercontent.com/optimetry/optimetry/main/optimetry/adagraft.py).
+Or, you know, just [pluck from source](https://raw.githubusercontent.com/optimetry/optimetry/main/optimetry/graft.py).
 
 Usage
 -----
@@ -20,17 +20,17 @@ Usage
 
 from torch.optim import SGD
 from your_research import CoolNewOptimizer
-from optimetry import AdaGraft
+from optimetry import Graft
 
 M = SGD(model.parameters(), lr=3e-4)
 D = CoolNewOptimizer(model.parameters())
-M_graft_D = AdaGraft(M, D)  # graft M's norms onto D's directions
+MxD = Graft(M, D)  # graft M's norms onto D's directions
 
 # ...
 
-M_graft_D.zero_grad()
+MxD.zero_grad()
 loss.backward()
-M_graft_D.step()
+MxD.step()
 ```
 
 Cite

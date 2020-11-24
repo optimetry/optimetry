@@ -43,9 +43,7 @@ class GGT(torch.optim.Optimizer):
 
     @torch.no_grad()
     def step(self, closure=None):
-        """Performs a single optimization step. In-place implementation
-        of grafting has a 1x model dimension overhead; trades numerical
-        stability, speed, and memory consumption for full generality.
+        """Performs a single optimization step.
 
         Arguments:
             closure (callable, optional): A closure that reevaluates the model

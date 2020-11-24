@@ -2,4 +2,4 @@
 generated-members=numpy.*, torch.*
 
 [FORMAT]
-good-names=M,D,global_M_norm,global_D_norm,X,x,dx,y,p,lr,M_copy,Gt,GtG,V,g,m1,t,w
+good-names=M,D,global_M_norm,global_D_norm,X,x,dx,y,p,lr,M_copy,Gt,GtG,V,g,m1,m2,t,w

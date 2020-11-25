@@ -67,32 +67,38 @@ class Ada(torch.optim.Optimizer):
                 adam_scale = group['adam_scale']
                 t = state['step']
                 weight_decay = group['weight_decay']
+                decouple_weight_decay = group['decouple_weight_decay']
                 lr = group['lr']
+                grad = p.grad
 
                 if weight_decay != 0:
-                    if group['decouple_weight_decay']:
+                    if decouple_weight_decay:
                         p.mul_(1 - lr*weight_decay)
                     else:
-                        p.grad.add_(p, alpha=weight_decay)
+                        # modify grad non-destructively
+                        grad = grad.add(p, alpha=weight_decay)
 
                 # 1st moment (momentum)
                 m1 *= beta1
                 if adam_scale:
-                    m1.add_(p.grad, alpha=1-beta1)
+                    m1.add_(grad, alpha=1-beta1)
                 else:
-                    m1.add_(p.grad)
+                    m1 += grad
 
                 # 2nd moment (adaptive preconditioner)
                 m2 *= beta2
                 if adam_scale:
-                    m2.addcmul_(p.grad, p.grad, value=1-beta2)
+                    m2.addcmul_(grad, grad, value=1-beta2)
                 else:
-                    m2.addcmul_(p.grad, p.grad)
+                    m2.addcmul_(grad, grad)
 
                 # preconditioned step
-                denom = m2.sqrt().add_(group['eps'])
-                p.addcdiv_(m1, denom, value=-lr * math.sqrt(1 - beta2**(t+1)) / (1 - beta1**(t+1))
-                           if adam_scale else -lr)
+                if adam_scale:
+                    denom = m2.sqrt().div_(math.sqrt(1 - beta2**(t+1))).add_(group['eps'])
+                    p.addcdiv_(m1, denom, value=-lr / (1 - beta1**(t+1)))
+                else:
+                    denom = m2.sqrt().add_(group['eps'])
+                    p.addcdiv_(m1, denom, value=-lr)
 
                 state['step'] += 1
 

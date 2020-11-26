@@ -24,18 +24,31 @@ class Ada(torch.optim.Optimizer):
             (default: 1e-4)
         weight_decay (float, optional): weight decay (L2 penalty)
             (default: 0)
-        adam_scale (bool, optional): use Adam scaling rule and bias
-            correction (default: True)
+        gammas (Tuple[float, float], optional): secondary coefficients
+            used for computing running averages of moments
+            (default: (1-betas[0],1-betas[1]))
+        adam_bias_correction (bool, optional): use Adam bias
+            correction (default: False)
+        decouple_weight_decay (bool, optional): decouple the weight
+            decay from the optimizer (default:False)
+        condition_before_momentum (bool, optional): perform preconditioning
+            before momentum update (default:False)
+        nesterov (bool, optional): use Nesterov momentum. Not Implemented.
+            (default: False)
+
     """
 
     # pylint: disable-msg=too-many-arguments
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8,
-                 weight_decay=0, adam_scale=False, decouple_weight_decay=False,
-                 nesterov=False):
+                 weight_decay=0, gammas=None, adam_bias_correction=False,
+                 decouple_weight_decay=False, condition_before_momentum=False, nesterov=False):
 
+        if gammas == None:
+            gammas = ((1 - betas[0]), (1-betas[1]))
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay,
-                        adam_scale=adam_scale, decouple_weight_decay=decouple_weight_decay,
-                        nesterov=nesterov)
+                        gammas=gammas, adam_bias_correction=adam_bias_correction,
+                        decouple_weight_decay=decouple_weight_decay, nesterov=nesterov,
+                        condition_before_momentum=condition_before_momentum)
 
         super(Ada, self).__init__(params, defaults)
 
@@ -62,12 +75,13 @@ class Ada(torch.optim.Optimizer):
                     state['m2'] = torch.zeros_like(p, memory_format=torch.preserve_format)
 
                 beta1, beta2 = group['betas']
+                gamma1, gamma2 = group['gammas']
                 m1, m2 = state['m1'], state['m2']
-
-                adam_scale = group['adam_scale']
                 t = state['step']
                 weight_decay = group['weight_decay']
                 decouple_weight_decay = group['decouple_weight_decay']
+                condition_before_momentum = group['condition_before_momentum']
+                adam_bias_correction = group['adam_bias_correction']
                 lr = group['lr']
                 grad = p.grad
 
@@ -78,27 +92,33 @@ class Ada(torch.optim.Optimizer):
                         # modify grad non-destructively
                         grad = grad.add(p, alpha=weight_decay)
 
+
                 # 1st moment (momentum)
-                m1 *= beta1
-                if adam_scale:
-                    m1.add_(grad, alpha=1-beta1)
-                else:
-                    m1 += grad
+                if not condition_before_momentum:
+                    m1 *= beta1
+                    m1.add_(grad, alpha=gamma1)
 
                 # 2nd moment (adaptive preconditioner)
                 m2 *= beta2
-                if adam_scale:
-                    m2.addcmul_(grad, grad, value=1-beta2)
-                else:
-                    m2.addcmul_(grad, grad)
+                m2.addcmul_(grad, grad, value=gamma2)
 
                 # preconditioned step
-                if adam_scale:
+                step_direction = grad if condition_before_momentum else m1
+                if adam_bias_correction:
                     denom = m2.sqrt().div_(math.sqrt(1 - beta2**(t+1))).add_(group['eps'])
-                    p.addcdiv_(m1, denom, value=-lr / (1 - beta1**(t+1)))
                 else:
                     denom = m2.sqrt().add_(group['eps'])
-                    p.addcdiv_(m1, denom, value=-lr)
+                pre_step = step_direction/denom
+
+                if condition_before_momentum:
+                    m1 *= beta1
+                    m1.add_(pre_step, alpha=gamma1)
+                    pre_step = m1
+
+                if adam_bias_correction:
+                    p.add_(pre_step, alpha=-lr/(1 - beta1**(t+1)))
+                else:
+                    p.add_(pre_step, alpha=-lr)
 
                 state['step'] += 1
 

@@ -1,5 +1,5 @@
 """Submodule with some optimizer implementations.
 """
 
-from .ada import Ada
+from .adapter import Adapter
 from .ggt import GGT

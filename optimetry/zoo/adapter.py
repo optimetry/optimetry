@@ -1,10 +1,10 @@
-"""Ada optimizer: unifying the most common set of optimizers
+"""Adapter: unifying and generalizing the most common set of optimizers
 """
 
 import math
 import torch
 
-class Ada(torch.optim.Optimizer):
+class Adapter(torch.optim.Optimizer):
     """Generic diagonal preconditioning optimizer.
 
     It has been noted by many papers that the most commonly-used
@@ -43,14 +43,14 @@ class Ada(torch.optim.Optimizer):
                  weight_decay=0, gammas=None, adam_bias_correction=False,
                  decouple_weight_decay=False, condition_before_momentum=False, nesterov=False):
 
-        if gammas == None:
+        if gammas is None:
             gammas = ((1 - betas[0]), (1-betas[1]))
         defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay,
                         gammas=gammas, adam_bias_correction=adam_bias_correction,
                         decouple_weight_decay=decouple_weight_decay, nesterov=nesterov,
                         condition_before_momentum=condition_before_momentum)
 
-        super(Ada, self).__init__(params, defaults)
+        super(Adapter, self).__init__(params, defaults)
 
     @torch.no_grad()
     def step(self, closure=None):

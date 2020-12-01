@@ -18,8 +18,8 @@ def tiny_net():
     y = torch.randn(20, 1)
     return net, X, y
 
-class TestAda(unittest.TestCase):
-    """Ada unit tests."""
+class TestAdapter(unittest.TestCase):
+    """Adapter unit tests."""
 
     def test_adam(self):
         """Test that Adam matches."""
@@ -31,9 +31,10 @@ class TestAda(unittest.TestCase):
         weight_decay = 1e-3
         betas = (0.8, 0.9)
 
-        optimizer = torch.optim.Adam(net.parameters(), lr=lr, betas=betas, weight_decay=weight_decay)
-        optimizer_copy = optimetry.zoo.Ada(net_copy.parameters(), lr=lr, betas=betas,
-                                           weight_decay=weight_decay, adam_bias_correction=True)
+        optimizer = torch.optim.Adam(net.parameters(),
+                                     lr=lr, betas=betas, weight_decay=weight_decay)
+        optimizer_copy = optimetry.zoo.Adapter(net_copy.parameters(), lr=lr, betas=betas,
+                                               weight_decay=weight_decay, adam_bias_correction=True)
 
         for _ in range(10):
             optimizer.zero_grad()
@@ -61,9 +62,9 @@ class TestAda(unittest.TestCase):
         betas = (0.8, 0.9)
 
         optimizer = torch.optim.AdamW(net.parameters(), lr=lr, weight_decay=weight_decay)
-        optimizer_copy = optimetry.zoo.Ada(net_copy.parameters(), lr=lr,
-                                           weight_decay=weight_decay, adam_bias_correction=True,
-                                           decouple_weight_decay=True)
+        optimizer_copy = optimetry.zoo.Adapter(net_copy.parameters(), lr=lr,
+                                               weight_decay=weight_decay, adam_bias_correction=True,
+                                               decouple_weight_decay=True)
 
         for _ in range(10):
             optimizer.zero_grad()
@@ -90,8 +91,9 @@ class TestAda(unittest.TestCase):
         weight_decay = 1e-3
 
         optimizer = torch.optim.Adagrad(net.parameters(), lr=lr, weight_decay=weight_decay)
-        optimizer_copy = optimetry.zoo.Ada(net_copy.parameters(), lr=lr, betas=(0, 1), gammas=(1, 1),
-                                           eps=1e-10, weight_decay=weight_decay)
+        optimizer_copy = optimetry.zoo.Adapter(net_copy.parameters(), lr=lr,
+                                               betas=(0, 1), gammas=(1, 1),
+                                               eps=1e-10, weight_decay=weight_decay)
 
         for _ in range(10):
             optimizer.zero_grad()
@@ -118,10 +120,13 @@ class TestAda(unittest.TestCase):
         weight_decay = 1e-3
         alpha = 0.9
         momentum = 0.7
-        optimizer = torch.optim.RMSprop(net.parameters(), lr=lr, weight_decay=weight_decay, alpha=alpha,
-                                        momentum=momentum)
-        optimizer_copy = optimetry.zoo.Ada(net_copy.parameters(), lr=lr, betas=(momentum, alpha), gammas=(1, 1-alpha),
-                                           eps=1e-8, weight_decay=weight_decay, condition_before_momentum=True)
+        optimizer = torch.optim.RMSprop(net.parameters(), lr=lr, weight_decay=weight_decay,
+                                        alpha=alpha, momentum=momentum)
+        optimizer_copy = optimetry.zoo.Adapter(net_copy.parameters(), lr=lr,
+                                               betas=(momentum, alpha),
+                                               gammas=(1, 1-alpha), eps=1e-8,
+                                               weight_decay=weight_decay,
+                                               condition_before_momentum=True)
 
         for _ in range(10):
             optimizer.zero_grad()
@@ -148,10 +153,13 @@ class TestAda(unittest.TestCase):
         weight_decay = 1e-3
         alpha = 0.9
         momentum = 0
-        optimizer = torch.optim.RMSprop(net.parameters(), lr=lr, weight_decay=weight_decay, alpha=alpha,
-                                        momentum=momentum)
-        optimizer_copy = optimetry.zoo.Ada(net_copy.parameters(), lr=lr, betas=(momentum, alpha), gammas=(1, 1-alpha),
-                                           eps=1e-8, weight_decay=weight_decay, condition_before_momentum=True)
+        optimizer = torch.optim.RMSprop(net.parameters(), lr=lr, weight_decay=weight_decay,
+                                        alpha=alpha, momentum=momentum)
+        optimizer_copy = optimetry.zoo.Adapter(net_copy.parameters(), lr=lr,
+                                               betas=(momentum, alpha),
+                                               gammas=(1, 1-alpha), eps=1e-8,
+                                               weight_decay=weight_decay,
+                                               condition_before_momentum=True)
 
         for _ in range(10):
             optimizer.zero_grad()

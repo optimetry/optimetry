@@ -104,7 +104,6 @@ class Graft(torch.optim.Optimizer):
                 state['m_norm'] = torch.linalg.norm(p)
                 if self.use_global_norm:
                     squared_step_norm += state['m_norm'].item() ** 2
-                state['step'] += 1
 
                 # revert p to old weights for D
                 p.copy_(state['scratch'])
